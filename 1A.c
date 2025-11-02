@@ -6,11 +6,11 @@ main()
 	printf("enter no. of elements in array:");
 	scanf("%d",&n);
 	printf("enter elements of array:\n");
-	for(i=0;i<n;i++)
+	for(i=1;i<=n;i++)
 {
 	scanf("%d",&a[i]);
 	}
-	for(i=0;i<n;i++)
+	for(i=1;i<=n;i++)
 	{
 		if(i%2==0)
 		{
@@ -25,3 +25,4 @@ main()
 	printf("the sum of odd index elements is %d\n",o);
 	
 }
+
