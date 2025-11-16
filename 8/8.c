@@ -1,103 +1,75 @@
 #include <stdio.h>
-#include <stdlib.h>
+#define MAX 20
+
+int parent[MAX];
 
 
-struct Edge {
-    int src, dest, weight;
-};
-
-
-struct Subset {
-    int parent, rank;
-};
-
-
-int find(struct Subset subsets[], int i) {
-    if (subsets[i].parent != i)
-        subsets[i].parent = find(subsets, subsets[i].parent);
-    return subsets[i].parent;
+int find(int i) {
+    while (parent[i] != -1) {
+        i = parent[i];
+    }
+    return i;
 }
 
 
-void Union(struct Subset subsets[], int x, int y) {
-    int xroot = find(subsets, x);
-    int yroot = find(subsets, y);
-
-    if (subsets[xroot].rank < subsets[yroot].rank)
-        subsets[xroot].parent = yroot;
-    else if (subsets[xroot].rank > subsets[yroot].rank)
-        subsets[yroot].parent = xroot;
-    else {
-        subsets[yroot].parent = xroot;
-        subsets[xroot].rank++;
-    }
+void union1(int i, int j) {
+    int a = find(i);
+    int b = find(j);
+    parent[a] = b;
 }
-
-
-int compareEdges(const void* a, const void* b) {
-    struct Edge* a1 = (struct Edge*)a;
-    struct Edge* b1 = (struct Edge*)b;
-    return a1->weight - b1->weight;
-}
-
-
-void KruskalMST(struct Edge edges[], int V, int E) {
-    struct Edge result[V]; 
-    int e = 0; 
-    int i = 0;
-    
-    qsort(edges, E, sizeof(struct Edge), compareEdges);
-
-
-    struct Subset* subsets = (struct Subset*)malloc(V * sizeof(struct Subset));
-
-
-    int v;
-    for (v = 0; v < V; ++v) {
-        subsets[v].parent = v;
-        subsets[v].rank = 0;
-    }
-
-
-    while (e < V - 1 && i < E) {
-        
-        struct Edge next_edge = edges[i++];
-
-        int x = find(subsets, next_edge.src);
-        int y = find(subsets, next_edge.dest);
-
-        
-        if (x != y) {
-            result[e++] = next_edge;
-            Union(subsets, x, y);
-        }
-        
-    }
-    printf("\nEdges in the Minimum Spanning Tree (MST):\n");
-    int totalWeight = 0;
-    for (i = 0; i < e; ++i) {
-        printf("%d -- %d == %d\n", result[i].src, result[i].dest, result[i].weight);
-        totalWeight += result[i].weight;
-    }
-    printf("Total weight of MST: %d\n", totalWeight);
-}
-
 
 int main() {
-    int V, E;
-    printf("Enter number of vertices and edges: ");
-    scanf("%d %d", &V, &E);
+    int n;
+    int cost[MAX][MAX];
+    int i, j;
+    int mincost = 0, ne = 1;
 
-    struct Edge* edges = (struct Edge*)malloc(E * sizeof(struct Edge));
+    printf("Enter number of vertices: ");
+    scanf("%d", &n);
 
-    printf("Enter edges (source destination weight):\n");
-    int i;
-    for (i = 0; i < E; i++) {
-        scanf("%d %d %d", &edges[i].src, &edges[i].dest, &edges[i].weight);
+    printf("Enter the cost adjacency matrix:\n");
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < n; j++) {
+            scanf("%d", &cost[i][j]);
+            if (cost[i][j] == 0)
+                cost[i][j] = 999;      
+        }
     }
 
-    KruskalMST(edges, V, E);
+    
+    for (i = 0; i < n; i++)
+        parent[i] = -1;
+
+    printf("\nEdges of the Minimum Cost Spanning Tree:\n");
+
+    while (ne < n) {
+        int min = 999, a = -1, b = -1;
+
+        
+        for (i = 0; i < n; i++) {
+            for (j = 0; j < n; j++) {
+                if (cost[i][j] < min) {
+                    min = cost[i][j];
+                    a = i;
+                    b = j;
+                }
+            }
+        }
+
+        if (find(a) != find(b)) {
+            printf("%d. Edge (%d, %d) = %d\n", ne, a + 1, b + 1, min);
+            mincost += min;
+            union1(a, b);
+            ne++;
+        }
+
+        cost[a][b] = cost[b][a] = 999;  
+    }
+
+    printf("\nMinimum Cost = %d\n", mincost);
 
     return 0;
 }
+
+
 
